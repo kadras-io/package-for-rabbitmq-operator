@@ -3,6 +3,7 @@ apiVersion: rabbitmq.com/v1beta1
 kind: RabbitmqCluster
 metadata:
   name: hello-world
+  namespace: tests
 spec:
   replicas: 1
   resources:

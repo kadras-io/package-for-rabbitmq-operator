@@ -2,6 +2,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  namespace: hello-world-server
+  name: hello-world-server
+  namespace: tests
 status:
   readyReplicas: 1

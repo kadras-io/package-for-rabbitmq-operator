@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@overlay/match by=overlay.subset({"kind":"Deployment", "metadata":{"name":"rabbitmq-cluster-operator"}})
+---
+spec:
+  template:
+    spec:
+      containers:
+      #@overlay/match by="name", expects=1
+      - name: operator
+        #@overlay/match missing_ok=True
+        args:
+          - #@ "--zap-log-level={}".format(data.values.logging.level)

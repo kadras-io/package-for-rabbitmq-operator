@@ -1,0 +1,7 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  namespace: hello-world-server
+status:
+  readyReplicas: 1

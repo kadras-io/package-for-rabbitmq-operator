@@ -1,0 +1,23 @@
+name: Release
+
+on:
+  - workflow_dispatch
+
+jobs:
+  release:
+    name: Release
+    permissions:
+      actions: read
+      contents: write
+      id-token: write
+      packages: write
+    uses: kadras-io/github-reusable-workflows/.github/workflows/package-release.yml@main
+    with:
+      package-name-slug: rabbitmq-operator
+      package-name-display: RabbitMQ Operator
+      registry-server: ghcr.io
+      registry-username: ${{ github.actor }}
+      image: ${{ github.repository }}
+      version: 2.7.0
+    secrets:
+      pull-request-token: ${{ secrets.GH_ORG_PAT }}

@@ -1,0 +1,8 @@
+#@data/values-schema
+---
+
+#@schema/desc "Logging configuration."
+logging:
+  #@schema/desc "The Operator log level. Valid options are `info` and `debug`."
+  #@schema/validation one_of=["info", "debug"]
+  level: info

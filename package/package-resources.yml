@@ -1,0 +1,64 @@
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: Package
+metadata:
+  creationTimestamp: null
+  name: rabbitmq-operator.packages.kadras.io.0.0.0
+spec:
+  licenses:
+  - Apache 2.0
+  refName: rabbitmq-operator.packages.kadras.io
+  releaseNotes: https://github.com/kadras-io/package-for-rabbitmq-operator/releases
+  releasedAt: null
+  template:
+    spec:
+      deploy:
+      - kapp: {}
+      fetch:
+      - git: {}
+      template:
+      - ytt:
+          paths:
+          - config
+      - kbld: {}
+  valuesSchema:
+    openAPIv3: {}
+  version: 0.0.0
+
+---
+apiVersion: data.packaging.carvel.dev/v1alpha1
+kind: PackageMetadata
+metadata:
+  creationTimestamp: null
+  name: rabbitmq-operator.packages.kadras.io
+spec:
+  categories:
+  - eventing
+  - messaging
+  - streaming
+  displayName: rabbitmq-operator
+  longDescription: Operator for RabbitMQ, an open-source message broker supporting multiple messaging protocols and streaming.
+  maintainers:
+  - name: Thomas Vitale
+  providerName: Kadras
+  shortDescription: Operator for RabbitMQ, a message broker supporting multiple messaging protocols and streaming.
+  supportDescription: Go to https://kadras.io for documentation and https://github.com/kadras-io/package-for-rabbitmq-operator
+    for community support.
+
+---
+apiVersion: packaging.carvel.dev/v1alpha1
+kind: PackageInstall
+metadata:
+  annotations:
+    kctrl.carvel.dev/local-fetch-0: .
+  creationTimestamp: null
+  name: rabbitmq-operator
+spec:
+  packageRef:
+    refName: rabbitmq-operator.packages.kadras.io
+    versionSelection:
+      constraints: 0.0.0
+  serviceAccountName: kadras-install-sa
+status:
+  conditions: null
+  friendlyDescription: ""
+  observedGeneration: 0

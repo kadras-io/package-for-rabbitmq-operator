@@ -4,7 +4,7 @@ directories:
   - githubRelease:
       disableAutoChecksumValidation: true
       slug: rabbitmq/cluster-operator
-      tag: v2.12.1
+      tag: v2.13.0
     includePaths:
     - cluster-operator-quay-io.yml
     path: .

@@ -2,8 +2,8 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - githubRelease:
-      tag: v2.12.1
-      url: https://api.github.com/repos/rabbitmq/cluster-operator/releases/196618520
+      tag: v2.13.0
+      url: https://api.github.com/repos/rabbitmq/cluster-operator/releases/216814323
     path: .
   path: config/upstream
 kind: LockConfig

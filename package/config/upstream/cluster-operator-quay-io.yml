@@ -11,7 +11,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.18.0
+    controller-gen.kubebuilder.io/version: v0.19.0
   labels:
     app.kubernetes.io/component: rabbitmq-operator
     app.kubernetes.io/name: rabbitmq-cluster-operator
@@ -611,8 +611,8 @@ spec:
                           most preferred is the one with the greatest sum of weights, i.e.
                           for each node that meets all of the scheduling requirements (resource
                           request, requiredDuringScheduling anti-affinity expressions, etc.),
-                          compute a sum by iterating through the elements of this field and adding
-                          "weight" to the sum if the node has pods which matches the corresponding podAffinityTerm; the
+                          compute a sum by iterating through the elements of this field and subtracting
+                          "weight" from the sum if the node has pods which matches the corresponding podAffinityTerm; the
                           node(s) with the highest sum are the most preferred.
                         items:
                           description: The weights of all of the matched WeightedPodAffinityTerm fields are added per-node to find the most preferred node(s)
@@ -1659,6 +1659,23 @@ spec:
                                                     - fieldPath
                                                     type: object
                                                     x-kubernetes-map-type: atomic
+                                                  fileKeyRef:
+                                                    properties:
+                                                      key:
+                                                        type: string
+                                                      optional:
+                                                        default: false
+                                                        type: boolean
+                                                      path:
+                                                        type: string
+                                                      volumeName:
+                                                        type: string
+                                                    required:
+                                                    - key
+                                                    - path
+                                                    - volumeName
+                                                    type: object
+                                                    x-kubernetes-map-type: atomic
                                                   resourceFieldRef:
                                                     properties:
                                                       containerName:
@@ -2087,6 +2104,29 @@ spec:
                                           type: object
                                         restartPolicy:
                                           type: string
+                                        restartPolicyRules:
+                                          items:
+                                            properties:
+                                              action:
+                                                type: string
+                                              exitCodes:
+                                                properties:
+                                                  operator:
+                                                    type: string
+                                                  values:
+                                                    items:
+                                                      format: int32
+                                                      type: integer
+                                                    type: array
+                                                    x-kubernetes-list-type: set
+                                                required:
+                                                - operator
+                                                type: object
+                                            required:
+                                            - action
+                                            type: object
+                                          type: array
+                                          x-kubernetes-list-type: atomic
                                         securityContext:
                                           properties:
                                             allowPrivilegeEscalation:
@@ -2371,6 +2411,23 @@ spec:
                                                     - fieldPath
                                                     type: object
                                                     x-kubernetes-map-type: atomic
+                                                  fileKeyRef:
+                                                    properties:
+                                                      key:
+                                                        type: string
+                                                      optional:
+                                                        default: false
+                                                        type: boolean
+                                                      path:
+                                                        type: string
+                                                      volumeName:
+                                                        type: string
+                                                    required:
+                                                    - key
+                                                    - path
+                                                    - volumeName
+                                                    type: object
+                                                    x-kubernetes-map-type: atomic
                                                   resourceFieldRef:
                                                     properties:
                                                       containerName:
@@ -2799,6 +2856,29 @@ spec:
                                           type: object
                                         restartPolicy:
                                           type: string
+                                        restartPolicyRules:
+                                          items:
+                                            properties:
+                                              action:
+                                                type: string
+                                              exitCodes:
+                                                properties:
+                                                  operator:
+                                                    type: string
+                                                  values:
+                                                    items:
+                                                      format: int32
+                                                      type: integer
+                                                    type: array
+                                                    x-kubernetes-list-type: set
+                                                required:
+                                                - operator
+                                                type: object
+                                            required:
+                                            - action
+                                            type: object
+                                          type: array
+                                          x-kubernetes-list-type: atomic
                                         securityContext:
                                           properties:
                                             allowPrivilegeEscalation:
@@ -3040,6 +3120,8 @@ spec:
                                     type: boolean
                                   hostname:
                                     type: string
+                                  hostnameOverride:
+                                    type: string
                                   imagePullSecrets:
                                     items:
                                       properties:
@@ -3095,6 +3177,23 @@ spec:
                                                         type: string
                                                     required:
                                                     - fieldPath
+                                                    type: object
+                                                    x-kubernetes-map-type: atomic
+                                                  fileKeyRef:
+                                                    properties:
+                                                      key:
+                                                        type: string
+                                                      optional:
+                                                        default: false
+                                                        type: boolean
+                                                      path:
+                                                        type: string
+                                                      volumeName:
+                                                        type: string
+                                                    required:
+                                                    - key
+                                                    - path
+                                                    - volumeName
                                                     type: object
                                                     x-kubernetes-map-type: atomic
                                                   resourceFieldRef:
@@ -3525,6 +3624,29 @@ spec:
                                           type: object
                                         restartPolicy:
                                           type: string
+                                        restartPolicyRules:
+                                          items:
+                                            properties:
+                                              action:
+                                                type: string
+                                              exitCodes:
+                                                properties:
+                                                  operator:
+                                                    type: string
+                                                  values:
+                                                    items:
+                                                      format: int32
+                                                      type: integer
+                                                    type: array
+                                                    x-kubernetes-list-type: set
+                                                required:
+                                                - operator
+                                                type: object
+                                            required:
+                                            - action
+                                            type: object
+                                          type: array
+                                          x-kubernetes-list-type: atomic
                                         securityContext:
                                           properties:
                                             allowPrivilegeEscalation:
@@ -4604,6 +4726,25 @@ spec:
                                                         type: array
                                                         x-kubernetes-list-type: atomic
                                                     type: object
+                                                  podCertificate:
+                                                    properties:
+                                                      certificateChainPath:
+                                                        type: string
+                                                      credentialBundlePath:
+                                                        type: string
+                                                      keyPath:
+                                                        type: string
+                                                      keyType:
+                                                        type: string
+                                                      maxExpirationSeconds:
+                                                        format: int32
+                                                        type: integer
+                                                      signerName:
+                                                        type: string
+                                                    required:
+                                                    - keyType
+                                                    - signerName
+                                                    type: object
                                                   secret:
                                                     properties:
                                                       items:
@@ -4934,6 +5075,27 @@ spec:
                   storage: 10Gi
                 description: The desired persistent storage configuration for each Pod in the cluster.
                 properties:
+                  emptyDir:
+                    description: EmptyDir configuration to be used when Storage is set to 0Gi.
+                    properties:
+                      medium:
+                        description: |-
+                          Medium represents the storage medium for the EmptyDir volume.
+                          The default is "" which means to use the node's default medium.
+                          Must be an empty string (default) or Memory.
+                          More info: https://kubernetes.io/docs/concepts/storage/volumes#emptydir
+                        type: string
+                      sizeLimit:
+                        anyOf:
+                        - type: integer
+                        - type: string
+                        description: |-
+                          SizeLimit sets the size limit for EmptyDir volumes.
+                          The format of this field matches that defined by kubernetes/apimachinery.
+                          See https://pkg.go.dev/k8s.io/apimachinery/pkg/api/resource#Quantity for more info on the format of this field.
+                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                        x-kubernetes-int-or-string: true
+                    type: object
                   storage:
                     anyOf:
                     - type: integer
@@ -5011,7 +5173,7 @@ spec:
                       Claims lists the names of resources, defined in spec.resourceClaims,
                       that are used by this container.
 
-                      This is an alpha field and requires enabling the
+                      This field depends on the
                       DynamicResourceAllocation feature gate.
 
                       This field is immutable. It can only be set for containers.
@@ -5346,6 +5508,17 @@ spec:
                   RabbitmqCluster's generation, which is updated on mutation by the API Server.
                 format: int64
                 type: integer
+              quorumStatus:
+                description: |-
+                  QuorumStatus indicates whether any node in the cluster is quorum critical.
+                  Format: "<status> [(<details>)]"
+                  Examples:
+                    - "ok" - no nodes are quorum critical
+                    - "ok (1 unavailable)" - no critical nodes, but 1 node unreachable
+                    - "quorum-critical: pod-0" - pod-0 is quorum critical
+                    - "quorum-critical: pod-0, pod-2 (1 unavailable)" - multiple critical pods
+                    - "unavailable" - all nodes unreachable or StatefulSet not ready
+                type: string
             required:
             - conditions
             type: object
@@ -5454,6 +5627,14 @@ rules:
   - get
   - list
   - update
+  - watch
+- apiGroups:
+  - discovery.k8s.io
+  resources:
+  - endpointslices
+  verbs:
+  - get
+  - list
   - watch
 - apiGroups:
   - rabbitmq.com
@@ -5573,7 +5754,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        image: quay.io/rabbitmqoperator/cluster-operator:2.16.1
+        image: quay.io/rabbitmqoperator/cluster-operator:2.19.0
         name: operator
         ports:
         - containerPort: 9782
@@ -5586,5 +5767,13 @@ spec:
           requests:
             cpu: 200m
             memory: 500Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
       serviceAccountName: rabbitmq-cluster-operator
       terminationGracePeriodSeconds: 10

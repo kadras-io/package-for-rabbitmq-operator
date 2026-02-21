@@ -94,9 +94,17 @@ The RabbitMQ Operator package has the following configurable properties.
 
 <details><summary>Configurable properties</summary>
 
+Logging configuration.
+
 | Config | Default | Description |
-|-------|-------------------|-------------|
+|-------|---------|-------------|
 | `logging.level` | `info` | The Operator log level. Valid options are `info` and `debug`. |
+
+Settings for Prometheus metrics.
+
+| Config | Default | Description |
+|-------|---------|-------------|
+| `prometheus.enabled` | `true` | Whether to enable Prometheus annotations for automatic scraping of RabbitMQ Operator metrics. |
 
 </details>
 

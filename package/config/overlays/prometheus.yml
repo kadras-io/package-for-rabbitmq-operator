@@ -1,0 +1,16 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+
+#@ if data.values.prometheus.enabled:
+#@overlay/match by=overlay.subset({"kind":"Deployment","metadata":{"name":"rabbitmq-cluster-operator"}})
+---
+spec:
+  template:
+    #@overlay/match-child-defaults missing_ok=True
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/scheme: "http"
+        prometheus.io/port: "metrics"
+        prometheus.io/path: "/metrics"
+#@ end

@@ -6,3 +6,8 @@ logging:
   #@schema/desc "The Operator log level. Valid options are `info` and `debug`."
   #@schema/validation one_of=["info", "debug"]
   level: info
+
+#@schema/desc "Settings for Prometheus metrics."
+prometheus:
+  #@schema/desc "Whether to enable Prometheus annotations for automatic scraping of RabbitMQ Operator metrics."
+  enabled: true

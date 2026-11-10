@@ -1,0 +1,19 @@
+---
+# The admission webhooks are served from the custom namespace, which is the only one the operator watches.
+# The RabbitMQ Pods comply with the "restricted" Pod Security Standard enforced on it.
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: rabbitmq-single
+  namespace: messaging
+spec:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 275Mi
+    limits:
+      cpu: 250m
+      memory: 275Mi
+  persistence:
+    storage: 250Mi

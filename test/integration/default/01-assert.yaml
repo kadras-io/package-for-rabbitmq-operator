@@ -1,8 +1,22 @@
 ---
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: hello-world
+status:
+  (conditions[?type == 'AllReplicasReady']):
+  - status: "True"
+  (conditions[?type == 'ReconcileSuccess']):
+  - status: "True"
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: hello-world-server
-  namespace: tests
 status:
   readyReplicas: 1
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: hello-world-default-user

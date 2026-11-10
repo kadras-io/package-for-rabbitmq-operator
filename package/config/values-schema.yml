@@ -1,13 +1,57 @@
+#@ load("/lib/validation.star", "is_dns_label")
+
 #@data/values-schema
 ---
 
-#@schema/desc "Logging configuration."
-logging:
-  #@schema/desc "The Operator log level. Valid options are `info` and `debug`."
-  #@schema/validation one_of=["info", "debug"]
-  level: info
+#@schema/desc "The namespace in which to deploy the RabbitMQ Cluster Operator."
+#@schema/validation ("a valid DNS label", is_dns_label), min_len=1, max_len=63
+namespace: rabbitmq-system
 
-#@schema/desc "Settings for Prometheus metrics."
-prometheus:
-  #@schema/desc "Whether to enable Prometheus annotations for automatic scraping of RabbitMQ Operator metrics."
-  enabled: true
+#! =============================================
+#! Operator
+#! =============================================
+
+#@schema/desc "The number of operator replicas. Additional replicas are standby via leader election, and all of them serve the admission webhooks. With more than 1 replica, a PodDisruptionBudget is created."
+#@schema/validation min=1
+replicas: 1
+
+#@schema/desc "Container flags, merged on top of the ones computed by the package. Set a flag to null to remove it."
+#@schema/examples ("Log format", {"zap-encoder": "console"})
+#@schema/type any=True
+args: {}
+
+#@schema/desc "Operator environment variables, merged on top of the ones computed by the package. Set a variable to null to remove it. See https://www.rabbitmq.com/kubernetes/operator/configure-operator-defaults."
+#@schema/examples ("Leader election", {"LEASE_DURATION": 30, "RENEW_DEADLINE": 20}), ("Default credential updater image", {"DEFAULT_USER_UPDATER_IMAGE": "registry.example.com/rabbitmq/default-user-credential-updater:1.0.14"})
+#@schema/type any=True
+env: {}
+
+#@schema/desc "The namespaces where the operator watches and reconciles the RabbitmqClusters. By default, all namespaces."
+watch_namespaces:
+#@schema/validation ("a valid DNS label", is_dns_label)
+- ""
+
+#! =============================================
+#! RabbitMQ clusters
+#! =============================================
+
+#@schema/desc "Defaults for the RabbitmqClusters that don't set them, applied when they are created."
+defaults:
+  #@schema/desc "The RabbitMQ image. By default, the one of the operator release."
+  image: ""
+  #@schema/desc "Names of the Secrets to pull the RabbitMQ image, in the namespace of each RabbitmqCluster."
+  image_pull_secrets:
+  - ""
+
+#! =============================================
+#! Observability
+#! =============================================
+
+#@schema/desc "Settings for logs and metrics."
+observability:
+  logging:
+    #@schema/desc "The log level of the operator. The logs are in JSON format."
+    #@schema/validation one_of=["error", "info", "debug"]
+    level: info
+  metrics:
+    #@schema/desc "Whether to annotate the operator Pods for Prometheus scraping. The operator always exposes metrics on port 8080 (`/metrics`)."
+    enabled: true

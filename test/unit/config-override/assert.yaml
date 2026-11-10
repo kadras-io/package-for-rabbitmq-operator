@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-cluster-operator
+spec:
+  template:
+    spec:
+      (containers[?name == 'operator'] | [0]):
+        (args[?starts_with(@, '--zap-log-level=')]): [--zap-log-level=debug]
+        (contains(args, '--zap-stacktrace-level=panic')): true
+        (contains(args, '--zap-encoder=console')): true
+        # The upstream flags are kept.
+        (args[0]): --health-probe-bind-address=:8081
+        (env[?name == 'OPERATOR_NAMESPACE'] | [0].valueFrom.fieldRef.fieldPath): metadata.namespace
+        (env[?name == 'OPERATOR_SCOPE_NAMESPACE'] | [0].value): team-a,team-b
+        (env[?name == 'DEFAULT_RABBITMQ_IMAGE'] | [0].value): registry.example.com/rabbitmq:4.3.4-management
+        (env[?name == 'DEFAULT_IMAGE_PULL_SECRETS'] | length(@)): 0
+        (env[?name == 'LEASE_DURATION'] | [0].value): "30"
+        (env[?name == 'CONTROL_RABBITMQ_IMAGE'] | [0].value): "true"

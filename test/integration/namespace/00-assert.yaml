@@ -1,0 +1,24 @@
+---
+# The operator is deployed in a custom namespace, with a standby replica.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-cluster-operator
+  namespace: messaging
+status:
+  readyReplicas: 2
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: rabbitmq-cluster-operator
+  namespace: messaging
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cluster-operator-serving-cert
+  namespace: messaging
+status:
+  (conditions[?type == 'Ready']):
+  - status: "True"

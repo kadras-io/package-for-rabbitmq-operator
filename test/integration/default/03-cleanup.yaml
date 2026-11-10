@@ -1,0 +1,6 @@
+---
+# Removes the RabbitmqClusters, their CustomResourceDefinition, and the namespace, which the uninstallation kept.
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+  - script: ../cleanup.sh rabbitmq-system

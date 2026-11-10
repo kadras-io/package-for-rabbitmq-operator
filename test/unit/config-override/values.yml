@@ -1,0 +1,19 @@
+---
+args:
+  zap-stacktrace-level: panic
+  --zap-encoder: console
+  # A computed flag can be overridden.
+  zap-log-level: debug
+env:
+  LEASE_DURATION: 30
+  CONTROL_RABBITMQ_IMAGE: true
+  # A computed variable can be overridden, or removed.
+  DEFAULT_RABBITMQ_IMAGE: registry.example.com/rabbitmq:4.3.4-management
+  DEFAULT_IMAGE_PULL_SECRETS: null
+watch_namespaces:
+- team-a
+- team-b
+defaults:
+  image: rabbitmq:4.3.4-management
+  image_pull_secrets:
+  - registry-credentials

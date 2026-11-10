@@ -1,13 +1,21 @@
-# Controllers
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: rabbitmq-cluster-operator
   namespace: rabbitmq-system
 status:
   readyReplicas: 1
-
-# Image Pull Secret
+---
+# cert-manager issued the certificate of the webhook server.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cluster-operator-serving-cert
+  namespace: rabbitmq-system
+status:
+  (conditions[?type == 'Ready']):
+  - status: "True"
 ---
 apiVersion: v1
 kind: Secret
@@ -23,6 +31,7 @@ data:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: rabbitmq-cluster-operator
   namespace: rabbitmq-system
 spec:
   template:

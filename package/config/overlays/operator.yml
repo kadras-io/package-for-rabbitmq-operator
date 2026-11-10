@@ -1,0 +1,40 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("/lib/rabbitmq.star", "args_merger", "container", "deployment", "env_merger", "operator_args", "operator_env", "selector")
+
+#! The operator is configured via flags and via environment variables, which it reads at startup.
+#! The flags computed from the package values are merged into the upstream ones, then `args` is merged on top.
+#! The variables computed from the package values are merged into the upstream ones, then `env` is merged on top.
+#! A change to either rolls out the operator.
+#! See: https://www.rabbitmq.com/kubernetes/operator/configure-operator-defaults
+
+#@overlay/match by=overlay.subset({"kind":"Deployment", "metadata":{"name":deployment}})
+---
+spec:
+  replicas: #@ data.values.replicas
+  template:
+    spec:
+      containers:
+        #@overlay/match by="name"
+        - name: #@ container
+          #@overlay/replace via=args_merger(operator_args())
+          args:
+          #@overlay/replace via=env_merger(operator_env())
+          env:
+
+#! The operator runs with leader election: additional replicas are standby, and all of them serve the admission webhooks.
+#! With more than one replica, a PodDisruptionBudget keeps at least one available.
+
+#@ if data.values.replicas > 1:
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: #@ deployment
+  namespace: #@ data.values.namespace
+  labels: #@ selector
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: #@ selector
+#@ end

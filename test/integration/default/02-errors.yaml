@@ -1,0 +1,7 @@
+---
+# The operator is deleted.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-cluster-operator
+  namespace: rabbitmq-system

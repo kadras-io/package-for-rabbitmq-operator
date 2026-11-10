@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rabbitmq-operator-values
+  namespace: tests
+stringData:
+  values.yaml: |
+    namespace: messaging
+    replicas: 2
+    watch_namespaces:
+      - messaging
+    observability:
+      logging:
+        level: debug

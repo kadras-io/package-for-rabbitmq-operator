@@ -1,9 +1,9 @@
 ---
+# A single-node RabbitMQ cluster, in the namespace of the test.
 apiVersion: rabbitmq.com/v1beta1
 kind: RabbitmqCluster
 metadata:
   name: hello-world
-  namespace: tests
 spec:
   replicas: 1
   resources:

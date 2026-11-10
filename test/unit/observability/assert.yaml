@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-cluster-operator
+spec:
+  template:
+    metadata:
+      (annotations."prometheus.io/scrape" == null): true
+      (annotations."prometheus.io/port" == null): true
+    spec:
+      (containers[?name == 'operator'] | [0]):
+        (args[?starts_with(@, '--zap-log-level=')]): [--zap-log-level=debug]

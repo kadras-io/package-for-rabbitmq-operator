@@ -6,7 +6,14 @@
 [![The Apache 2.0 license badge](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Follow us on Bluesky](https://img.shields.io/static/v1?label=Bluesky&message=Follow&color=1DA1F2)](https://bsky.app/profile/kadras.bsky.social)
 
-A Carvel package for [RabbitMQ Operator](https://www.rabbitmq-operator.com/docs/kubernetes/operator/operator-overview), an open-source message broker supporting multiple messaging protocols and streaming.
+A Carvel package for the [RabbitMQ Cluster Operator](https://www.rabbitmq.com/kubernetes/operator/operator-overview), a Kubernetes operator that manages the lifecycle of [RabbitMQ](https://www.rabbitmq.com) clusters, an open-source message broker supporting multiple messaging protocols and streaming.
+
+## ✨&nbsp; What's Included
+
+* **RabbitMQ operator**. The RabbitMQ Cluster Operator and its admission webhooks, configured via the package values, with optional standby replicas for high availability.
+* **Safe lifecycle**. Uninstalling the package keeps the `RabbitmqCluster` CRD, so the RabbitMQ clusters and their data survive it.
+* **Observability**. Structured JSON logs, and metrics annotated for Prometheus scraping.
+* **Security**. The operator complies with the `restricted` [Pod Security Standard](https://kubernetes.io/docs/concepts/security/pod-security-standards/), enforced on its namespace. Private registries are supported for both the operator and the RabbitMQ clusters.
 
 ## 🚀&nbsp; Getting Started
 
@@ -16,77 +23,124 @@ A Carvel package for [RabbitMQ Operator](https://www.rabbitmq-operator.com/docs/
 * Carvel [`kctrl`](https://carvel.dev/kapp-controller/docs/latest/install/#installing-kapp-controller-cli-kctrl) CLI.
 * Carvel [kapp-controller](https://carvel.dev/kapp-controller) deployed in your Kubernetes cluster. You can install it with Carvel [`kapp`](https://carvel.dev/kapp/docs/latest/install) (recommended choice) or `kubectl`.
 
-  ```shell
-  kapp deploy -a kapp-controller -y \
-    -f https://github.com/carvel-dev/kapp-controller/releases/latest/download/release.yml
-  ```
+```shell
+kapp deploy -a kapp-controller -y \
+  -f https://github.com/carvel-dev/kapp-controller/releases/latest/download/release.yml
+```
+
+### Dependencies
+
+The RabbitMQ Operator requires [cert-manager](https://github.com/kadras-io/package-for-cert-manager) to issue the certificate of its admission webhooks. To authenticate with private registries, install [secretgen-controller](https://github.com/kadras-io/package-for-secretgen-controller). Both are available in the [Kadras package repository](https://github.com/kadras-io/kadras-packages).
 
 ### Installation
 
 Add the Kadras [package repository](https://github.com/kadras-io/kadras-packages) to your Kubernetes cluster:
 
-  ```shell
-  kctrl package repository add -r kadras-packages \
-    --url ghcr.io/kadras-io/kadras-packages \
-    -n kadras-system --create-namespace
-  ```
+```shell
+kctrl package repository add -r kadras-packages \
+  --url ghcr.io/kadras-io/kadras-packages \
+  -n kadras-system --create-namespace
+```
 
 <details><summary>Installation without package repository</summary>
 The recommended way of installing the RabbitMQ Operator package is via the Kadras <a href="https://github.com/kadras-io/kadras-packages">package repository</a>. If you prefer not using the repository, you can add the package definition directly using <a href="https://carvel.dev/kapp/docs/latest/install"><code>kapp</code></a> or <code>kubectl</code>.
 
-  ```shell
-  kubectl create namespace kadras-system
-  kapp deploy -a rabbitmq-operator-package -n kadras-system -y \
-    -f https://github.com/kadras-io/package-for-rabbitmq-operator/releases/latest/download/metadata.yml \
-    -f https://github.com/kadras-io/package-for-rabbitmq-operator/releases/latest/download/package.yml
-  ```
+```shell
+kubectl create namespace kadras-system
+kapp deploy -a rabbitmq-operator-package -n kadras-system -y \
+  -f https://github.com/kadras-io/package-for-rabbitmq-operator/releases/latest/download/metadata.yml \
+  -f https://github.com/kadras-io/package-for-rabbitmq-operator/releases/latest/download/package.yml
+```
 </details>
 
 Install the RabbitMQ Operator package:
 
-  ```shell
-  kctrl package install -i rabbitmq-operator \
-    -p rabbitmq-operator.packages.kadras.io \
-    -v ${VERSION} \
-    -n kadras-system
-  ```
+```shell
+kctrl package install -i rabbitmq-operator \
+  -p rabbitmq-operator.packages.kadras.io \
+  -v ${VERSION} \
+  -n kadras-system
+```
 
 > **Note**
 > You can find the `${VERSION}` value by retrieving the list of package versions available in the Kadras package repository installed on your cluster.
 > 
->   ```shell
->   kctrl package available list -p rabbitmq-operator.packages.kadras.io -n kadras-system
->   ```
+> ```shell
+> kctrl package available list -p rabbitmq-operator.packages.kadras.io -n kadras-system
+> ```
 
 Verify the installed packages and their status:
 
-  ```shell
-  kctrl package installed list -n kadras-system
-  ```
+```shell
+kctrl package installed list -n kadras-system
+```
+
+### Try It Out
+
+Create a single-node RabbitMQ cluster:
+
+```shell
+kubectl apply -f - <<EOF
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: hello-world
+  namespace: default
+EOF
+```
+
+Wait for the cluster to be ready, then open the management UI with the credentials generated by the operator:
+
+```shell
+kubectl wait rabbitmqcluster/hello-world -n default --for=condition=AllReplicasReady --timeout=5m
+kubectl get secret hello-world-default-user -n default -o jsonpath='{.data.username}' | base64 --decode
+kubectl get secret hello-world-default-user -n default -o jsonpath='{.data.password}' | base64 --decode
+kubectl port-forward service/hello-world -n default 15672
+```
+
+Applications connect via the `hello-world` Service, on port 5672 (AMQP), with the credentials in the `hello-world-default-user` Secret. See [quickstart](https://www.rabbitmq.com/kubernetes/operator/quickstart-operator) and [using the operator](https://www.rabbitmq.com/kubernetes/operator/using-operator).
 
 ## 📙&nbsp; Documentation
 
 Documentation, tutorials and examples for this package are available in the [docs](docs) folder.
-For documentation specific to RabbitMQ Operator, check out [rabbitmq-operator.com](https://www.rabbitmq-operator.com/docs/kubernetes/operator/operator-overview).
+For documentation specific to the RabbitMQ Cluster Operator, check out [rabbitmq.com](https://www.rabbitmq.com/kubernetes/operator/operator-overview).
+
+Features:
+
+* [High availability](docs/high-availability.md)
+* [Observability](docs/observability.md)
+* [Security](docs/security.md)
+
+Operations:
+
+* [Configuration and ytt overlays](docs/configuration.md)
+* [Upgrading and uninstalling](docs/upgrade.md)
+* [Verifying the release](docs/verify-release.md)
 
 ## 🎯&nbsp; Configuration
 
 The RabbitMQ Operator package can be customized via a `values.yml` file.
 
-  ```yaml
-  logging:
-    level: info
-  ```
+```yaml
+replicas: 2
+watch_namespaces:
+  - messaging
+defaults:
+  image_pull_secrets:
+    - registry-credentials
+```
 
 Reference the `values.yml` file from the `kctrl` command when installing or upgrading the package.
 
-  ```shell
-  kctrl package install -i rabbitmq-operator \
-    -p rabbitmq-operator.packages.kadras.io \
-    -v ${VERSION} \
-    -n kadras-system \
-    --values-file values.yml
-  ```
+```shell
+kctrl package install -i rabbitmq-operator \
+  -p rabbitmq-operator.packages.kadras.io \
+  -v ${VERSION} \
+  -n kadras-system \
+  --values-file values.yml
+```
+
+The operator environment variables and flags can be customized beyond the values, as well as any resource via ytt overlays. See [configuration.md](docs/configuration.md).
 
 ### Values
 
@@ -94,19 +148,44 @@ The RabbitMQ Operator package has the following configurable properties.
 
 <details><summary>Configurable properties</summary>
 
-Logging configuration.
+<!-- values-table:start -->
 
 | Config | Default | Description |
-|-------|---------|-------------|
-| `logging.level` | `info` | The Operator log level. Valid options are `info` and `debug`. |
+|--------|---------|-------------|
+| `namespace` | `"rabbitmq-system"` | The namespace in which to deploy the RabbitMQ Cluster Operator. |
+| `replicas` | `1` | The number of operator replicas. Additional replicas are standby via leader election, and all of them serve the admission webhooks. With more than 1 replica, a PodDisruptionBudget is created. |
+| `args` | `{}` | Container flags, merged on top of the ones computed by the package. Set a flag to null to remove it. |
+| `env` | `{}` | Operator environment variables, merged on top of the ones computed by the package. Set a variable to null to remove it. See https://www.rabbitmq.com/kubernetes/operator/configure-operator-defaults. |
+| `watch_namespaces` | `[]` | The namespaces where the operator watches and reconciles the RabbitmqClusters. By default, all namespaces. |
+| `defaults.image` | `""` | The RabbitMQ image. By default, the one of the operator release. |
+| `defaults.image_pull_secrets` | `[]` | Names of the Secrets to pull the RabbitMQ image, in the namespace of each RabbitmqCluster. |
+| `observability.logging.level` | `"info"` | The log level of the operator. The logs are in JSON format. |
+| `observability.metrics.enabled` | `true` | Whether to annotate the operator Pods for Prometheus scraping. The operator always exposes metrics on port 8080 (`/metrics`). |
 
-Settings for Prometheus metrics.
-
-| Config | Default | Description |
-|-------|---------|-------------|
-| `prometheus.enabled` | `true` | Whether to enable Prometheus annotations for automatic scraping of RabbitMQ Operator metrics. |
+<!-- values-table:end -->
 
 </details>
+
+## 🛠️&nbsp; Development
+
+The development environment is defined with [devenv](https://devenv.sh). Enter it with `devenv shell`, or automatically with [direnv](https://direnv.net) after running `direnv allow`. Run `task --list` to see all the available tasks.
+
+```shell
+# Run the unit tests, which render the package and check the result without a cluster.
+task test:config
+
+# Create a local kind cluster and run the integration tests on it.
+task cluster:setup
+task test:integration
+
+# Deploy the package from the local sources to the current cluster.
+task dev
+
+# Update the table of configurable values in this README after changing the values schema.
+task docs:values
+```
+
+The unit tests are described in [test/unit/README.md](test/unit/README.md).
 
 ## 🛡️&nbsp; Security
 

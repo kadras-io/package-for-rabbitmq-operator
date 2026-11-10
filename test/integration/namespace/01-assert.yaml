@@ -1,0 +1,17 @@
+---
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: rabbitmq-single
+  namespace: messaging
+status:
+  (conditions[?type == 'AllReplicasReady']):
+  - status: "True"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rabbitmq-single-server-0
+  namespace: messaging
+status:
+  phase: Running

@@ -1,0 +1,31 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:overlay", "overlay")
+#@ load("/lib/rabbitmq.star", "deployment")
+
+#! The operator exposes metrics in the Prometheus format on port 8080 (`/metrics`), over HTTP.
+#! The log level is set via flags (see lib/rabbitmq.star).
+#! See: https://www.rabbitmq.com/kubernetes/operator/operator-monitoring
+
+#@ if data.values.observability.metrics.enabled:
+#@overlay/match by=overlay.subset({"kind":"Deployment", "metadata":{"name":deployment}})
+---
+spec:
+  template:
+    metadata:
+      #@overlay/match missing_ok=True
+      annotations:
+        #@overlay/match missing_ok=True
+        prometheus.io/scrape: "true"
+        #@overlay/match missing_ok=True
+        prometheus.io/port: "8080"
+        #@overlay/match missing_ok=True
+        prometheus.io/path: /metrics
+#@ end
+
+#! The upstream manifest includes a certificate to serve the metrics over HTTPS, but the operator doesn't use it:
+#! it's not mounted, the metrics are served over HTTP, and its DNS names are unresolved placeholders
+#! (`SERVICE_NAME.SERVICE_NAMESPACE.svc`). It's removed.
+
+#@overlay/match by=overlay.subset({"kind":"Certificate", "metadata":{"name":"metrics-certs"}})
+#@overlay/remove
+---

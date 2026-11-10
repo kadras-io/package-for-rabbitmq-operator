@@ -1,0 +1,19 @@
+#@ load("@ytt:overlay", "overlay")
+
+#! Deleting the CustomResourceDefinition deletes all the RabbitmqClusters, and with them the PersistentVolumeClaims
+#! of the RabbitMQ nodes, which their StatefulSets delete (`persistentVolumeClaimRetentionPolicy.whenDeleted: Delete`): all the data.
+#! Instead, uninstalling the package keeps the CustomResourceDefinition and the namespace: the operator is deleted,
+#! and the RabbitMQ nodes keep running, waiting for the operator to be installed again.
+#! To remove the RabbitmqClusters too, delete them before uninstalling the package (see docs/upgrade.md).
+#! When the package is installed again, kapp updates the resources it left behind instead of failing because they already exist.
+#! See: https://carvel.dev/kapp/docs/latest/apply/
+
+#@overlay/match by=overlay.or_op(overlay.subset({"kind":"CustomResourceDefinition"}), overlay.subset({"kind":"Namespace"})), expects="1+"
+---
+metadata:
+  #@overlay/match missing_ok=True
+  annotations:
+    #@overlay/match missing_ok=True
+    kapp.k14s.io/delete-strategy: orphan
+    #@overlay/match missing_ok=True
+    kapp.k14s.io/create-strategy: fallback-on-update

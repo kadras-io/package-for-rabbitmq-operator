@@ -1,0 +1,9 @@
+# A single replica, without a PodDisruptionBudget, which would block the node drains.
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+---
+# The unused metrics certificate, with unresolved DNS names, is removed.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: metrics-certs

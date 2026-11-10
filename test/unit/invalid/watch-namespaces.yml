@@ -1,0 +1,4 @@
+# expected: a valid DNS label
+---
+watch_namespaces:
+- team-a,team-b

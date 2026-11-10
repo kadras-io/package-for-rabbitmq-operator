@@ -6,3 +6,17 @@ commands:
       cd ../../../package && \
       kubectl config set-context --current --namespace=tests && \
       ytt -f ../test/integration/namespace/config -f package-resources.yml | kctrl dev -f- --local -y
+  # The operator can be ready before its webhook Service routes traffic to it. Wait until the webhooks
+  # accept a RabbitmqCluster, since creating one before fails instead of being retried.
+  - script: |
+      for _ in $(seq 60); do
+        kubectl create --dry-run=server -o name -f - <<YAML && exit 0
+      apiVersion: rabbitmq.com/v1beta1
+      kind: RabbitmqCluster
+      metadata:
+        name: webhook-check
+        namespace: tests
+      YAML
+        sleep 2
+      done
+      exit 1

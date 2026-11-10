@@ -8,14 +8,12 @@ status:
   readyReplicas: 1
 ---
 # cert-manager issued the certificate of the webhook server.
-apiVersion: cert-manager.io/v1
-kind: Certificate
+apiVersion: v1
+kind: Secret
 metadata:
-  name: cluster-operator-serving-cert
+  name: cluster-operator-webhook-server-cert
   namespace: rabbitmq-system
-status:
-  (conditions[?type == 'Ready']):
-  - status: "True"
+type: kubernetes.io/tls
 ---
 apiVersion: v1
 kind: Secret

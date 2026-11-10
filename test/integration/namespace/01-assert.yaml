@@ -4,9 +4,14 @@ kind: RabbitmqCluster
 metadata:
   name: rabbitmq-single
   namespace: messaging
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq-single-server
+  namespace: messaging
 status:
-  (conditions[?type == 'AllReplicasReady']):
-  - status: "True"
+  readyReplicas: 1
 ---
 apiVersion: v1
 kind: Pod

@@ -14,11 +14,9 @@ metadata:
   name: rabbitmq-cluster-operator
   namespace: messaging
 ---
-apiVersion: cert-manager.io/v1
-kind: Certificate
+apiVersion: v1
+kind: Secret
 metadata:
-  name: cluster-operator-serving-cert
+  name: cluster-operator-webhook-server-cert
   namespace: messaging
-status:
-  (conditions[?type == 'Ready']):
-  - status: "True"
+type: kubernetes.io/tls

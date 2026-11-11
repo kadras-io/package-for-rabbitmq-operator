@@ -14,6 +14,7 @@ A Carvel package for the [RabbitMQ Cluster Operator](https://www.rabbitmq.com/ku
 * **Safe lifecycle**. Uninstalling the package keeps the `RabbitmqCluster` CRD, so the RabbitMQ clusters and their data survive it.
 * **Observability**. Structured JSON logs, and metrics annotated for Prometheus scraping.
 * **Security**. The operator complies with the `restricted` [Pod Security Standard](https://kubernetes.io/docs/concepts/security/pod-security-standards/), enforced on its namespace. Private registries are supported for both the operator and the RabbitMQ clusters.
+* **Access**. The Kubernetes default roles are extended with the RabbitMQ Cluster Operator resources: `edit` and `admin` manage the RabbitMQ clusters of a namespace, while `view` reads them. See [docs/rbac.md](docs/rbac.md).
 
 ## 🚀&nbsp; Getting Started
 
@@ -110,6 +111,7 @@ Features:
 * [High availability](docs/high-availability.md)
 * [Observability](docs/observability.md)
 * [Security](docs/security.md)
+* [Access to the resources](docs/rbac.md)
 
 Operations:
 
